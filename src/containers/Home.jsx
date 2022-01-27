@@ -1,15 +1,11 @@
 import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import axios from 'axios';
+// import axios from 'axios';
 
-import Header from '../components/Header';
-import Sidebar from '../components/Sidebar';
-import Content from './Content';
 import { userData } from '../api/user';
 import { useDispatch, useSelector } from 'react-redux';
 import { login, selectUser } from '../app/features/userSlice';
-import Admin from '../components/Admin';
-import Orders from '../components/Orders';
+import { Header, Sidebar, Admin, Orders, Products, Customers, Analytics, Discounts } from '../components';
 
 const Home = () => {
   const user = useSelector(selectUser);
@@ -24,14 +20,16 @@ const Home = () => {
   return (
     <div>
       <Header />
-      <div className='flex'>
-        <Sidebar />
-        <div className='mt-12 ml-48'>
-          <Routes>
-            <Route path='/' element={<Admin />} />
-            <Route path='/orders' element={<Orders />} />
-          </Routes>
-        </div>
+      <Sidebar />
+      <div className='pt-12 pl-48'>
+        <Routes>
+          <Route path='/' element={<Admin />} />
+          <Route path='/orders' element={<Orders />} />
+          <Route path='/products' element={<Products />} />
+          <Route path='/customers' element={<Customers />} />
+          <Route path='/analytics' element={<Analytics />} />
+          <Route path='/discounts' element={<Discounts />} />
+        </Routes>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Login from './components/Login';
+import { Login } from './components';
 import Home from './containers/Home';
 
 const App = () => {
