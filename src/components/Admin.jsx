@@ -3,13 +3,12 @@ import { Link } from 'react-router-dom';
 
 import { BsFillInboxesFill } from 'react-icons/bs';
 import { MdKeyboardArrowRight } from 'react-icons/md';
-import { orderData } from '../api/orders';
 import OrderTable from './OrderTable';
 import HomeCard from './HomeCard';
 
 const Admin = () => {
   return (
-    <div className=' w-[calc(100vw-12rem)] h-[calc(100vh-3rem)] p-6 bg-gray-50'>
+    <div className='w-[calc(100vw-12rem)] h-[calc(100vh-3rem)] p-6 bg-gray-50'>
       <p className='text-xs text-gray-500'>Here's what's happening today.</p>
       <div className='flex justify-between gap-4 w-full my-4'>
         <HomeCard to='analytics' title='Total sales' number='$1340.00' text='25 total orders' linkText='View analytics' />
@@ -29,7 +28,7 @@ const Admin = () => {
 
       <div className='relative bg-white shadow-md rounded-md my-6'>
         <p className='p-3'>Latest orders</p>
-        <OrderTable orderData={orderData} />
+        <OrderTable ordersPerPage={10} />
       </div>
     </div>
   );

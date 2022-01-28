@@ -1,74 +1,67 @@
-import React, { useState } from 'react';
-import moment from 'moment';
-import { FaCircle, FaRegCircle } from 'react-icons/fa';
-import { BsCircleHalf } from 'react-icons/bs';
+import React, { useEffect, useState } from 'react';
+import ReactPaginate from 'react-paginate';
+import TableRow from './TableRow';
 
-const OrderTable = ({ orderData }) => {
-  const handleHover = (e) => {
-    console.log(e);
-    const row = e.target.parentNode;
-    if (e.type === 'mouseout') {
-      row.classList.remove('bg-gray-100');
-      row.children[0].classList.remove('bg-gray-100');
-      row.children[0].classList.add('bg-white');
-    } else {
-      row.classList.add('bg-gray-100');
-      row.children[0].classList.remove('bg-white');
-      row.children[0].classList.add('bg-gray-100');
-    }
+import { orderData } from '../api/orders';
+
+const OrderTable = ({ limit = 0, ordersPerPage, fulfillment }) => {
+  const [currentOrders, setCurrentOrders] = useState(null);
+  const [pageCount, setPageCount] = useState(0);
+  const [orderOffset, setOrderOffset] = useState(0);
+
+  useEffect(() => {
+    let data = orderData;
+    if (fulfillment) data = orderData.filter((order) => order.fulfillmentStatus.toLowerCase() === fulfillment);
+
+    const endOffset = orderOffset + ordersPerPage;
+    setCurrentOrders(data.slice(orderOffset, endOffset));
+    setPageCount(Math.ceil(data.length / ordersPerPage));
+  }, [orderOffset, ordersPerPage, fulfillment]);
+
+  const handlePageClick = (e) => {
+    const newOffset = (e.selected * ordersPerPage) % orderData.length;
+    console.log(`User requested page number ${e.selected}, which is offset ${newOffset}`);
+    setOrderOffset(newOffset);
   };
 
   return (
-    <div className='overflow-x-scroll w-full mt-1'>
-      <table className='relative'>
-        <thead className='border-b'>
-          <tr>
-            <th className='fixed bg-white table-header'>Order</th>
-            <th className='table-header'>Date</th>
-            <th className='table-header'>Customer</th>
-            <th className='table-header'>Total</th>
-            <th className='table-header'>Payment status</th>
-            <th className='table-header'>Fulfillment status</th>
-            <th className='table-header'>Items</th>
-          </tr>
-        </thead>
-        <tbody>
-          {orderData?.map((order, index) => {
-            return (
-              index < 10 && (
-                <tr key={index} onMouseOver={handleHover} onMouseOut={handleHover}>
-                  <td className='sticky bg-white left-0 table-property font-normal'>{order.order}</td>
-                  <td className='table-property'>{moment(order.createdAt).calendar()}</td>
-                  <td className='table-property'>{order.customer.name}</td>
-                  <td className='table-property'>${order.total.toFixed(2)}</td>
-                  <td className='table-property'>
-                    <p className='flex gap-1 items-center text-xxs text-gray-800 bg-gray-300 rounded-xl w-fit px-1 py-[1px]'>
-                      {order.paymentStatus.toLowerCase() == 'paid' ? <FaCircle fontSize={6} /> : <FaRegCircle />}
-                      {order.paymentStatus}
-                    </p>
-                  </td>
-                  <td className='table-property'>
-                    <p className='flex gap-1 items-center text-xxs text-gray-800 bg-gray-300 rounded-xl w-fit px-1 py-[1px]'>
-                      {order.fulfillmentStatus.toLowerCase() == 'fulfilled' ? (
-                        <FaCircle fontSize={8} />
-                      ) : order.fulfillmentStatus.toLowerCase() == 'unfulfilled' ? (
-                        <FaRegCircle fontSize={8} />
-                      ) : (
-                        <BsCircleHalf fontSize={8} className='-rotate-90' />
-                      )}
-                      {order.fulfillmentStatus}
-                    </p>
-                  </td>
-                  <td className='text-xs px-4 py-2 whitespace-nowrap text-left font-light'>
-                    {order.items == 1 ? `${order.items} item` : `${order.items} items`}
-                  </td>
-                </tr>
-              )
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+    <>
+      <div className='overflow-x-scroll w-full mt-1'>
+        <table className='relative'>
+          <thead className='border-b'>
+            <tr>
+              <th className='fixed bg-white table-header'>Order</th>
+              <th className='table-header'>Date</th>
+              <th className='table-header'>Customer</th>
+              <th className='table-header'>Total</th>
+              <th className='table-header'>Payment status</th>
+              <th className='table-header'>Fulfillment status</th>
+              <th className='table-header'>Items</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentOrders?.map((order, index) => {
+              return (index < limit || !limit) && <TableRow key={index} order={order} />;
+            })}
+          </tbody>
+        </table>
+      </div>
+      <ReactPaginate
+        pageRangeDisplayed={0}
+        marginPagesDisplayed={0}
+        pageCount={pageCount}
+        onPageChange={handlePageClick}
+        breakLabel=''
+        nextLabel='>'
+        previousLabel='<'
+        renderOnZeroPageCount={null}
+        previousLinkClassName='px-[10px] py-[5px] border border-gray-500 text-gray-500 rounded-l-mmd'
+        nextLinkClassName='px-[10px] py-[5px] border border-gray-500 text-gray-500 rounded-r-mmd'
+        pageClassName='hidden'
+        disabledLinkClassName='!border-gray-300 !text-gray-300 cursor-default'
+        className='flex justify-center py-5 '
+      />
+    </>
   );
 };
 

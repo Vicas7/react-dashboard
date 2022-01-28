@@ -8,7 +8,7 @@ const Header = () => {
   const [search, setSearch] = useState('');
 
   return (
-    <div className='fixed flex justify-between w-screen z-50 h-12 px-3 py-2 border-b shadow-sm rounded-mmd'>
+    <div className='fixed flex justify-between w-screen z-50 h-12 px-3 py-2 border-b shadow-sm rounded-mmd bg-white z-50'>
       <div className='flex items-center'>
         <p className='text-sm '>{user?.companyName}</p>
       </div>
