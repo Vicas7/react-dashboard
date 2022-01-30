@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { HiOutlineArrowLeft } from 'react-icons/hi';
 import { Link } from 'react-router-dom';
 import { useQuill } from 'react-quilljs';
@@ -27,7 +27,35 @@ const NewProduct = () => {
   const [price, setPrice] = useState('');
   const [comparePrice, setComparePrice] = useState('');
 
+  const uploader = useRef();
+
   const { quill, quillRef } = useQuill({ modules });
+
+  const handleDragIn = useCallback((ev) => {
+    console.log(ev);
+    ev.preventDefault();
+    ev.stopPropagation();
+    if (ev.dataTransfer.items && ev.dataTransfer.items.length !== 0) {
+      console.log(true);
+    }
+  }, []);
+  const handleDragOut = useCallback((ev) => {
+    console.log(ev);
+    ev.preventDefault();
+    ev.stopPropagation();
+    console.log(false);
+  }, []);
+
+  useEffect(() => {
+    const ele = uploader.current;
+    console.log(ele);
+    ele.addEventListener('dragenter', handleDragIn);
+    ele.addEventListener('dragleave', handleDragOut);
+    return () => {
+      ele.removeEventListener('dragenter', handleDragIn);
+      ele.removeEventListener('dragleave', handleDragOut);
+    };
+  }, []);
 
   const handleFilesChange = (file) => {
     setFiles((prev) => [...prev, file]);
@@ -71,9 +99,9 @@ const NewProduct = () => {
             <div ref={quillRef} className='rounded-b-mmd !border-gray-300'></div>
           </div>
 
-          <div className='bg-white shadow-md rounded-md p-4'>
+          <div className='bg-white shadow-md rounded-md p-4 mb-4'>
             <h5 className='text-sm font-medium mb-3'>Media</h5>
-            <div class='flex gap-2 flex-wrap '>
+            <div className='flex gap-2 flex-wrap '>
               {files.map((file) => (
                 <div className='h-28 w-28  border border-gray-300 rounded-md relative group'>
                   <img src={URL.createObjectURL(file)} alt='product-pic' className='w-full h-full object-contain' />
@@ -84,41 +112,43 @@ const NewProduct = () => {
                   </div>
                 </div>
               ))}
-              <FileUploader
-                name='file'
-                hoverTitle={true}
-                handleChange={handleFilesChange}
-                types={fileTypes}
-                classes='w-full'
-                children={
-                  files.length == 0 ? (
-                    <div className='flex flex-col gap-1 justify-center items-center h-20  cursor-pointer border border-dashed border-gray-300 hover:border-blue-700 hover:bg-gray-50 rounded-mmd'>
-                      <div className='text-xxs px-1 py-[1px] bg-blue-100 text-blue-700 rounded-mmd'>Add file</div>
-                      <p className='text-xxs font-light text-gray-500'>Accepts images and gifs</p>
-                    </div>
-                  ) : (
-                    <div className='flex flex-col gap-1 justify-center items-center w-28 h-28 cursor-pointer border border-dashed border-gray-300 hover:border-blue-700 hover:bg-gray-50 rounded-mmd'>
-                      <div className='text-xxs px-1 py-[1px] bg-blue-100 text-blue-700 rounded-mmd'>Add file</div>
-                    </div>
-                  )
-                }
-              />
+              <div className='w-full' ref={uploader}>
+                <FileUploader
+                  name='file'
+                  hoverTitle={true}
+                  handleChange={handleFilesChange}
+                  types={fileTypes}
+                  classes='w-full'
+                  children={
+                    files.length == 0 ? (
+                      <div className='flex flex-col gap-1 justify-center items-center h-20  cursor-pointer border border-dashed border-gray-300 hover:border-blue-700 hover:bg-gray-50 rounded-mmd'>
+                        <div className='text-xxs px-1 py-[1px] bg-blue-100 text-blue-700 rounded-mmd'>Add file</div>
+                        <p className='text-xxs font-light text-gray-500'>Accepts images and gifs</p>
+                      </div>
+                    ) : (
+                      <div className='flex flex-col gap-1 justify-center items-center w-28 h-28 cursor-pointer border border-dashed border-gray-300 hover:border-blue-700 hover:bg-gray-50 rounded-mmd'>
+                        <div className='text-xxs px-1 py-[1px] bg-blue-100 text-blue-700 rounded-mmd'>Add file</div>
+                      </div>
+                    )
+                  }
+                />
+              </div>
             </div>
           </div>
 
-          <div className='bg-white shadow-md rounded-md p-4'>
+          <div className='bg-white shadow-md rounded-md p-4 mb-4'>
             <h5 className='text-sm font-medium mb-3'>Pricing</h5>
             <div className='flex gap-4'>
               <div className='flex-1'>
                 <label htmlFor='price' className='text-xs font-light'>
                   Price
                 </label>
-                <div className='flex items-center w-full text-xs px-2 rounded-mmd text-gray-500 font-light ring-1 ring-gray-300 placeholder-gray-500'>
+                <div className='flex items-center w-full text-xs px-2 mt-1 rounded-mmd text-gray-500 font-light ring-1 ring-gray-300 placeholder-gray-500'>
                   $
                   <input
                     type='text'
                     id='price'
-                    className='mr-1 block w-full py-[6px] text-xs outline-none placeholder-gray-500'
+                    className='mr-2 block w-full py-[6px] text-xs outline-none placeholder-gray-500'
                     placeholder='0.00'
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
@@ -126,17 +156,20 @@ const NewProduct = () => {
                 </div>
               </div>
               <div className='flex-1'>
-                <label htmlFor='comparePrice' className='text-xs font-light'>
+                <label htmlFor='price' className='text-xs font-light'>
                   Compare at price
                 </label>
-                <input
-                  type='text'
-                  id='comparePrice'
-                  className='block mt-1 mb-3 w-full text-xs px-2 py-[6px] rounded-mmd ring-1 ring-gray-300 placeholder-gray-500'
-                  placeholder='0.00'
-                  value={comparePrice}
-                  onChange={(e) => setComparePrice(e.target.value)}
-                />
+                <div className='flex items-center w-full text-xs px-2 mt-1 rounded-mmd text-gray-500 font-light ring-1 ring-gray-300 placeholder-gray-500'>
+                  $
+                  <input
+                    type='text'
+                    id='price'
+                    className='mr-2 block w-full py-[6px] text-xs outline-none placeholder-gray-500'
+                    placeholder='0.00'
+                    value={comparePrice}
+                    onChange={(e) => setComparePrice(e.target.value)}
+                  />
+                </div>
               </div>
             </div>
           </div>
