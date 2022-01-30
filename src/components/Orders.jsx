@@ -44,8 +44,8 @@ const Orders = () => {
           <label
             className={
               isFilterFocused
-                ? 'flex gap-1 items-center pl-2 border rounded-sm w-full outline outline-1 outline-blue-500'
-                : 'flex gap-1 items-center pl-2 border rounded-sm w-full'
+                ? 'flex gap-1 items-center pl-2 border rounded-mmd w-full outline outline-1 outline-blue-500'
+                : 'flex gap-1 items-center pl-2 border rounded-mmd w-full'
             }
           >
             <HiSearch className='text-gray-600 text-base' />
@@ -61,7 +61,7 @@ const Orders = () => {
           </label>
         </div>
 
-        <OrderTable ordersPerPage={30} fulfillment={fulfillment} filter={filter} />
+        <OrderTable fulfillment={fulfillment} filter={filter} />
       </div>
     </div>
   );

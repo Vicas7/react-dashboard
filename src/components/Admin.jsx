@@ -28,7 +28,7 @@ const Admin = () => {
 
       <div className='relative bg-white shadow-md rounded-md my-6'>
         <p className='p-3'>Latest orders</p>
-        <OrderTable ordersPerPage={10} />
+        <OrderTable itemsPerPage={10} />
       </div>
     </div>
   );

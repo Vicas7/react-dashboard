@@ -5,7 +5,18 @@ import { Routes, Route } from 'react-router-dom';
 import { userData } from '../api/user';
 import { useDispatch, useSelector } from 'react-redux';
 import { login, selectUser } from '../app/features/userSlice';
-import { Header, Sidebar, Admin, Orders, Products, Customers, Analytics, Discounts } from '../components';
+import {
+  Header,
+  Sidebar,
+  Admin,
+  Orders,
+  Products,
+  Customers,
+  Analytics,
+  Discounts,
+  OrderDetails,
+  NewProduct,
+} from '../components';
 
 const Home = () => {
   const user = useSelector(selectUser);
@@ -24,11 +35,14 @@ const Home = () => {
       <div className='pt-12 pl-48'>
         <Routes>
           <Route path='/' element={<Admin />} />
-          <Route path='/orders' element={<Orders />} />
-          <Route path='/products' element={<Products />} />
-          <Route path='/customers' element={<Customers />} />
-          <Route path='/analytics' element={<Analytics />} />
-          <Route path='/discounts' element={<Discounts />} />
+          <Route path='orders/' element={<Orders />} />
+          <Route path='orders/:orderId' element={<OrderDetails />} />
+          <Route path='products' element={<Products />} />
+          <Route path='products/:productId' element={<Products />} />
+          <Route path='products/new' element={<NewProduct />} />
+          <Route path='customers' element={<Customers />} />
+          <Route path='analytics' element={<Analytics />} />
+          <Route path='discounts' element={<Discounts />} />
         </Routes>
       </div>
     </div>
