@@ -9,3 +9,4 @@ export { default as Analytics } from './Analytics';
 export { default as Discounts } from './Discounts';
 export { default as OrderDetails } from './OrderDetails';
 export { default as NewProduct } from './NewProduct';
+export { default as ProductOptions } from './ProductOptions';

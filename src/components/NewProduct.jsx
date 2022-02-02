@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { HiOutlineArrowLeft } from 'react-icons/hi';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuill } from 'react-quilljs';
 import 'quill/dist/quill.snow.css';
 import { FileUploader } from 'react-drag-drop-files';
-import { BsTrashFill } from 'react-icons/bs';
+import { BsPlusLg, BsTrashFill } from 'react-icons/bs';
+import { ProductOptions } from '.';
 
 const fileTypes = ['JPG', 'PNG', 'GIF', 'JPEG'];
 
@@ -26,39 +27,43 @@ const NewProduct = () => {
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState('');
   const [comparePrice, setComparePrice] = useState('');
-
-  const uploader = useRef();
+  const [hasOptions, setHasOptions] = useState(false);
+  const [options, setOptions] = useState([{ name: '', values: [{ name: '', price: '', comparePrice: '' }] }]);
 
   const { quill, quillRef } = useQuill({ modules });
 
-  const handleDragIn = useCallback((ev) => {
-    console.log(ev);
-    ev.preventDefault();
-    ev.stopPropagation();
-    if (ev.dataTransfer.items && ev.dataTransfer.items.length !== 0) {
-      console.log(true);
-    }
-  }, []);
-  const handleDragOut = useCallback((ev) => {
-    console.log(ev);
-    ev.preventDefault();
-    ev.stopPropagation();
-    console.log(false);
-  }, []);
-
-  useEffect(() => {
-    const ele = uploader.current;
-    console.log(ele);
-    ele.addEventListener('dragenter', handleDragIn);
-    ele.addEventListener('dragleave', handleDragOut);
-    return () => {
-      ele.removeEventListener('dragenter', handleDragIn);
-      ele.removeEventListener('dragleave', handleDragOut);
-    };
-  }, []);
+  const navigate = useNavigate();
 
   const handleFilesChange = (file) => {
     setFiles((prev) => [...prev, file]);
+  };
+
+  const saveProduct = async () => {
+    const body = {
+      title,
+      description: quill.getText(),
+      price,
+      comparePrice,
+      active: status === 'draft' ? false : true,
+      options: hasOptions,
+      variants: options,
+    };
+
+    var headers = new Headers();
+    headers.append('key', 'd11805cb-8f9b-4dfa-b758-5005d9d5cb38');
+    headers.append('Content-Type', 'application/json');
+
+    console.log(body);
+
+    const res = await fetch('http://localhost:5050/products', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    console.log(data);
+    if (data.error) alert(data.error);
+    else navigate('../products');
   };
 
   return (
@@ -72,11 +77,11 @@ const NewProduct = () => {
               </Link>
             </div>
 
-            <h3 className='font-medium'>Add product</h3>
+            <h3 className='font-medium'>Add Product</h3>
           </div>
-          {/* <div>
-            <p className='text-xs text-gray-800'>Edit</p>
-          </div> */}
+          <button className='btn-primary' onClick={saveProduct}>
+            Save
+          </button>
         </div>
       </div>
       <div className='flex my-6 gap-4 justify-center'>
@@ -112,23 +117,24 @@ const NewProduct = () => {
                   </div>
                 </div>
               ))}
-              <div className='w-full' ref={uploader}>
+              <div className='w-full'>
                 <FileUploader
                   name='file'
-                  hoverTitle={true}
                   handleChange={handleFilesChange}
                   types={fileTypes}
-                  classes='w-full'
+                  classes={
+                    files.length == 0
+                      ? 'flex flex-col gap-1 justify-center items-center h-20  cursor-pointer border border-dashed border-gray-300 hover:border-blue-700 hover:bg-gray-50 rounded-mmd'
+                      : 'flex flex-col gap-1 justify-center items-center w-28 h-28 cursor-pointer border border-dashed border-gray-300 hover:border-blue-700 hover:bg-gray-50 rounded-mmd'
+                  }
                   children={
                     files.length == 0 ? (
-                      <div className='flex flex-col gap-1 justify-center items-center h-20  cursor-pointer border border-dashed border-gray-300 hover:border-blue-700 hover:bg-gray-50 rounded-mmd'>
+                      <>
                         <div className='text-xxs px-1 py-[1px] bg-blue-100 text-blue-700 rounded-mmd'>Add file</div>
                         <p className='text-xxs font-light text-gray-500'>Accepts images and gifs</p>
-                      </div>
+                      </>
                     ) : (
-                      <div className='flex flex-col gap-1 justify-center items-center w-28 h-28 cursor-pointer border border-dashed border-gray-300 hover:border-blue-700 hover:bg-gray-50 rounded-mmd'>
-                        <div className='text-xxs px-1 py-[1px] bg-blue-100 text-blue-700 rounded-mmd'>Add file</div>
-                      </div>
+                      <div className='text-xxs px-1 py-[1px] bg-blue-100 text-blue-700 rounded-mmd'>Add file</div>
                     )
                   }
                 />
@@ -148,7 +154,7 @@ const NewProduct = () => {
                   <input
                     type='text'
                     id='price'
-                    className='mr-2 block w-full py-[6px] text-xs outline-none placeholder-gray-500'
+                    className='ml-1 block w-full py-[6px] text-xs outline-none placeholder-gray-500 text-black'
                     placeholder='0.00'
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
@@ -164,7 +170,7 @@ const NewProduct = () => {
                   <input
                     type='text'
                     id='price'
-                    className='mr-2 block w-full py-[6px] text-xs outline-none placeholder-gray-500'
+                    className='ml-1 block w-full py-[6px] text-xs outline-none placeholder-gray-500 text-black'
                     placeholder='0.00'
                     value={comparePrice}
                     onChange={(e) => setComparePrice(e.target.value)}
@@ -173,6 +179,8 @@ const NewProduct = () => {
               </div>
             </div>
           </div>
+
+          <ProductOptions options={options} setOptions={setOptions} hasOptions={hasOptions} setHasOptions={setHasOptions} />
         </div>
 
         <div className='bg-white shadow-md rounded-md min-w-[220px] max-w-[240px] h-max'>

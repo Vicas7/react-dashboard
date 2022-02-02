@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ReactPaginate from 'react-paginate';
-import ItemTableRow from './ItemTableRow';
+import CustomerTableRow from './CustomerTableRow';
 
 import { orderData } from '../api/orders';
 
@@ -10,12 +10,20 @@ const ItemTable = ({ headers, filters, limit = 0, itemsPerPage = 30 }) => {
   const [itemOffset, setItemOffset] = useState(0);
 
   useEffect(() => {
-    let data = orderData;
-    // if (fulfillment) data = orderData.filter((order) => order.fulfillmentStatus.toLowerCase() === fulfillment);
-
-    const endOffset = itemOffset + itemsPerPage;
-    setCurrentItems(data.slice(itemOffset, endOffset));
-    setPageCount(Math.ceil(data.length / itemsPerPage));
+    const getProducts = async () => {
+      const res = await fetch('http://localhost:5050/products', {
+        headers: {
+          key: 'd11805cb-8f9b-4dfa-b758-5005d9d5cb38',
+        },
+      });
+      const data = await res.json();
+      console.log(data);
+      // if (fulfillment) data = orderData.filter((order) => order.fulfillmentStatus.toLowerCase() === fulfillment);
+      const endOffset = itemOffset + itemsPerPage;
+      setCurrentItems(data.slice(itemOffset, endOffset));
+      setPageCount(Math.ceil(data.length / itemsPerPage));
+    };
+    getProducts();
   }, [itemOffset, itemsPerPage, filters]);
 
   const handlePageClick = (e) => {
@@ -39,7 +47,7 @@ const ItemTable = ({ headers, filters, limit = 0, itemsPerPage = 30 }) => {
           </thead>
           <tbody>
             {currentItems?.map((item) => {
-              return <ItemTableRow key={item.id} item={item} />;
+              return <CustomerTableRow key={item.id} item={item} />;
             })}
           </tbody>
         </table>
