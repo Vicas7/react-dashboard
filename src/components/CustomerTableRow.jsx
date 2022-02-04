@@ -1,7 +1,4 @@
 import React, { useState } from 'react';
-import moment from 'moment';
-import { FaCircle, FaRegCircle } from 'react-icons/fa';
-import { BsCircle, BsCircleHalf } from 'react-icons/bs';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const CustomerTableRow = ({ item }) => {
@@ -9,27 +6,24 @@ const CustomerTableRow = ({ item }) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
-  let keys = Object.keys(item);
-
   return (
     <tr
       className={isHovered ? 'bg-gray-100 cursor-pointer border-b' : 'cursor-pointer border-b group even:bg-slate-50'}
-      onClick={() => navigate(pathname.indexOf('products') > -1 ? `${item.id}` : `items/${item.id}`)}
+      onClick={() => navigate(pathname.indexOf('customers') > -1 ? `${item._id}` : `items/${item._id}`)}
       onMouseOver={() => setIsHovered(true)}
       onMouseOut={() => setIsHovered(false)}
     >
       <td
         className={
           isHovered
-            ? 'bg-gray-100 sticky left-0 table-property font-normal'
-            : 'bg-white group-even:bg-slate-50 sticky left-0 table-property font-normal'
+            ? ' bg-gray-100 sticky left-0 table-property font-normal'
+            : 'bg-white group-even:bg-slate-50 sticky left-0 table-property font-normal '
         }
       >
-        <img src={item?.images[0]} alt='photo' />
+        {item.firstName} {item.lastName}
       </td>
-      <td className='table-property'>{item.title}</td>
-      <td className='table-property'>{item.status ? 'Active' : 'Draft'}</td>
-      <td className='table-property'>{item?.variants?.length}</td>
+      <td className='table-property font-normal normal-case'>{item.email}</td>
+      <td className='table-property'>{item?.orders?.length || 0}</td>
     </tr>
   );
 };

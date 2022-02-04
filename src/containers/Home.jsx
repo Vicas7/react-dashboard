@@ -16,6 +16,8 @@ import {
   Discounts,
   OrderDetails,
   NewProduct,
+  ProductDetails,
+  CustomerDetails,
 } from '../components';
 
 const Home = () => {
@@ -38,9 +40,10 @@ const Home = () => {
           <Route path='orders/' element={<Orders />} />
           <Route path='orders/:orderId' element={<OrderDetails />} />
           <Route path='products' element={<Products />} />
-          <Route path='products/:productId' element={<Products />} />
+          <Route path='products/:productId' element={<ProductDetails />} />
           <Route path='products/new' element={<NewProduct />} />
           <Route path='customers' element={<Customers />} />
+          <Route path='customers/:customerId' element={<CustomerDetails />} />
           <Route path='analytics' element={<Analytics />} />
           <Route path='discounts' element={<Discounts />} />
         </Routes>

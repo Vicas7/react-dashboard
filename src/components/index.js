@@ -10,3 +10,7 @@ export { default as Discounts } from './Discounts';
 export { default as OrderDetails } from './OrderDetails';
 export { default as NewProduct } from './NewProduct';
 export { default as ProductOptions } from './ProductOptions';
+export { default as ProductDetails } from './ProductDetails';
+export { default as CustomerTable } from './CustomerTable';
+export { default as CustomerTableRow } from './CustomerTableRow';
+export { default as CustomerDetails } from './CustomerDetails';

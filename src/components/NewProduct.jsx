@@ -1,11 +1,16 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { HiOutlineArrowLeft } from 'react-icons/hi';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuill } from 'react-quilljs';
-import 'quill/dist/quill.snow.css';
 import { FileUploader } from 'react-drag-drop-files';
-import { BsPlusLg, BsTrashFill } from 'react-icons/bs';
+import { nanoid } from 'nanoid';
+
+import 'quill/dist/quill.snow.css';
+
+import { HiOutlineArrowLeft } from 'react-icons/hi';
+import { BsTrashFill } from 'react-icons/bs';
+
 import { ProductOptions } from '.';
+import { storage } from '../config/firebase';
 
 const fileTypes = ['JPG', 'PNG', 'GIF', 'JPEG'];
 
@@ -34,19 +39,36 @@ const NewProduct = () => {
 
   const navigate = useNavigate();
 
-  const handleFilesChange = (file) => {
-    setFiles((prev) => [...prev, file]);
+  const handleFilesChange = async (file) => {
+    const id = nanoid();
+    try {
+      await storage.ref('images/' + id).put(file);
+      const url = await storage.ref('images').child(id).getDownloadURL();
+      setFiles((prev) => [...prev, { name: id, url }]);
+    } catch (error) {
+      alert(error);
+    }
+  };
+
+  const removeFile = async (name) => {
+    try {
+      await storage.ref('images/' + name).delete();
+      setFiles((prev) => prev.filter((file) => file.name !== name));
+    } catch (error) {
+      alert(error);
+    }
   };
 
   const saveProduct = async () => {
     const body = {
       title,
-      description: quill.getText(),
+      description: quill.root.innerHTML,
       price,
       comparePrice,
+      images: files,
       active: status === 'draft' ? false : true,
       options: hasOptions,
-      variants: options,
+      variants: options[0].name != '' ? options : null,
     };
 
     var headers = new Headers();
@@ -72,7 +94,7 @@ const NewProduct = () => {
         <div className='flex justify-between items-center'>
           <div className='flex gap-2 items-center'>
             <div className='flex items-center h-8 w-8 justify-center border text-gray-700 border-gray-400 rounded-mmd'>
-              <Link to={'/admin/orders'} className='p-2'>
+              <Link to={'/admin/products'} className='p-2'>
                 <HiOutlineArrowLeft />
               </Link>
             </div>
@@ -108,8 +130,8 @@ const NewProduct = () => {
             <h5 className='text-sm font-medium mb-3'>Media</h5>
             <div className='flex gap-2 flex-wrap '>
               {files.map((file) => (
-                <div className='h-28 w-28  border border-gray-300 rounded-md relative group'>
-                  <img src={URL.createObjectURL(file)} alt='product-pic' className='w-full h-full object-contain' />
+                <div key={file.name} className='h-28 w-28  border border-gray-300 rounded-md relative group'>
+                  <img src={file.url} alt='product-pic' className='w-full h-full object-contain' />
                   <div className='hidden absolute top-0 bottom-0 right-0 left-0 bg-gray-600 opacity-80 rounded-md group-hover:flex justify-center items-center'>
                     <div className='p-2 cursor-pointer'>
                       <BsTrashFill fontSize={16} color='red' />

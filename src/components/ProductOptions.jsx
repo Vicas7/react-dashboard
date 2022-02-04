@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { BsPlusLg, BsTrashFill } from 'react-icons/bs';
 import ProductVariants from './ProductVariants';
 
-const ProductOptions = ({ options, setOptions, hasOptions, setHasOptions }) => {
+const ProductOptions = ({ options, setOptions, hasOptions, setHasOptions, setHasChanged = () => {} }) => {
   const handleOptionsChange = (index, vIndex, e) => {
     let optionsValues = [...options];
     if (e.target.name === 'name') {
@@ -35,7 +35,15 @@ const ProductOptions = ({ options, setOptions, hasOptions, setHasOptions }) => {
       <div className='bg-white shadow-md rounded-md p-4 mb-4'>
         <h5 className='text-sm font-medium mb-3'>Options</h5>
         <div className='flex items-center gap-2'>
-          <input type='checkbox' id='options' checked={hasOptions} onChange={() => setHasOptions((hasOptions) => !hasOptions)} />
+          <input
+            type='checkbox'
+            id='options'
+            checked={hasOptions}
+            onChange={() => {
+              setHasOptions((hasOptions) => !hasOptions);
+              setHasChanged(true);
+            }}
+          />
           <label htmlFor='options' className='text-xs font-light'>
             This product has options
           </label>
@@ -52,7 +60,10 @@ const ProductOptions = ({ options, setOptions, hasOptions, setHasOptions }) => {
                     className='block  w-full text-xs px-2 py-[6px] rounded-mmd ring-1 ring-gray-300 placeholder-gray-500'
                     placeholder='Name'
                     value={option.name || ''}
-                    onChange={(e) => handleOptionsChange(index, null, e)}
+                    onChange={(e) => {
+                      handleOptionsChange(index, null, e);
+                      setHasChanged(true);
+                    }}
                   />
                 </div>
                 {index > 0 && <BsTrashFill className='text-gray-500 cursor-pointer' onClick={() => removeOption(index)} />}
@@ -68,7 +79,10 @@ const ProductOptions = ({ options, setOptions, hasOptions, setHasOptions }) => {
                       className='block w-full text-xs px-2 py-[6px] rounded-mmd ring-1 ring-gray-300 placeholder-gray-500'
                       placeholder='Value'
                       value={value.name}
-                      onChange={(e) => handleOptionsChange(index, vIndex, e)}
+                      onChange={(e) => {
+                        handleOptionsChange(index, vIndex, e);
+                        setHasChanged(true);
+                      }}
                     />
                   </div>
                   {vIndex > 0 && (

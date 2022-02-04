@@ -8,34 +8,36 @@ const notActiveTabStyle =
   'relative cursor-pointer text-xs text-gray-500 hover:text-black px-3 py-2 before:content[""] before:absolute before:bottom-0 before:left-0 before:right-0 before:h-[2px] before:rounded-t-md hover:before:bg-gray-400';
 
 const Orders = () => {
-  const [fulfillment, setFulfillment] = useState(null);
-  const [filter, setFilter] = useState('');
+  const [filter, setFilter] = useState({ fulfillment: null, search: '' });
   const [isFilterFocused, setIsFilterFocused] = useState(false);
 
   return (
-    <div className='p-6 bg-gray-50'>
+    <div className='p-6 bg-gray-50 min-h-[calc(100vh-3rem)]'>
       <h3 className='font-medium'>Orders</h3>
 
       <div className='bg-white shadow-md rounded-md my-6'>
         <div className='p-2 pb-0 border-b flex gap-2'>
-          <p className={!fulfillment ? activeTabStyle : notActiveTabStyle} onClick={() => setFulfillment(null)}>
+          <p
+            className={!filter.fulfillment ? activeTabStyle : notActiveTabStyle}
+            onClick={() => setFilter((prev) => ({ ...prev, fulfillment: null }))}
+          >
             All
           </p>
           <p
-            className={fulfillment === 'unfulfilled' ? activeTabStyle : notActiveTabStyle}
-            onClick={() => setFulfillment('unfulfilled')}
+            className={filter.fulfillment === 'unfulfilled' ? activeTabStyle : notActiveTabStyle}
+            onClick={() => setFilter((prev) => ({ ...prev, fulfillment: 'unfulfilled' }))}
           >
             Unfulfilled
           </p>
           <p
-            className={fulfillment === 'fulfilled' ? activeTabStyle : notActiveTabStyle}
-            onClick={() => setFulfillment('fulfilled')}
+            className={filter.fulfillment === 'fulfilled' ? activeTabStyle : notActiveTabStyle}
+            onClick={() => setFilter((prev) => ({ ...prev, fulfillment: 'fulfilled' }))}
           >
             Fulfilled
           </p>
           <p
-            className={fulfillment === 'in progress' ? activeTabStyle : notActiveTabStyle}
-            onClick={() => setFulfillment('in progress')}
+            className={filter.fulfillment === 'in progress' ? activeTabStyle : notActiveTabStyle}
+            onClick={() => setFilter((prev) => ({ ...prev, fulfillment: 'in progress' }))}
           >
             In progress
           </p>
@@ -51,8 +53,8 @@ const Orders = () => {
             <HiSearch className='text-gray-600 text-base' />
             <input
               type='text'
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
+              value={filter.search}
+              onChange={(e) => setFilter((prev) => ({ ...prev, search: e.target.value }))}
               onFocus={() => setIsFilterFocused(true)}
               onBlur={() => setIsFilterFocused(false)}
               placeholder='Filter orders'
@@ -61,7 +63,7 @@ const Orders = () => {
           </label>
         </div>
 
-        <OrderTable fulfillment={fulfillment} filter={filter} />
+        <OrderTable filter={filter} />
       </div>
     </div>
   );

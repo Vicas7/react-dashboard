@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import ReactPaginate from 'react-paginate';
-import OrderTableRow from './OrderTableRow';
+import ProductTableRow from './ProductTableRow';
 
 import { orderData } from '../api/orders';
+import { CustomerTableRow } from '.';
 
-const OrderTable = ({ itemsPerPage = 30, filter }) => {
-  const [currentItems, setCurrentItems] = useState([]);
+const CustomerTable = ({ headers, filter, itemsPerPage = 30 }) => {
+  const [currentItems, setCurrentItems] = useState(null);
   const [pageCount, setPageCount] = useState(0);
   const [itemOffset, setItemOffset] = useState(0);
 
   useEffect(() => {
-    const getOrders = async () => {
-      const url = new URL('http://localhost:5050/orders');
-      if (filter.fulfillment !== null) {
-        url.searchParams.set('fulfillmentStatus', filter.fulfillment);
-      }
+    const getCustomers = async () => {
+      const url = new URL('http://localhost:5050/customers');
       if (filter.search !== '') {
         url.searchParams.set('search', filter.search);
       }
@@ -29,7 +27,7 @@ const OrderTable = ({ itemsPerPage = 30, filter }) => {
       setCurrentItems(data);
       setPageCount(Math.ceil(data.length / itemsPerPage));
     };
-    getOrders();
+    getCustomers();
   }, [itemOffset, itemsPerPage, filter]);
 
   const handlePageClick = (e) => {
@@ -44,19 +42,17 @@ const OrderTable = ({ itemsPerPage = 30, filter }) => {
         <table className='relative w-full'>
           <thead className='border-b'>
             <tr>
-              <th className='fixed bg-white table-header'>Order</th>
-              <th className='table-header'>Date</th>
-              <th className='table-header'>Customer</th>
-              <th className='table-header'>Total</th>
-              <th className='table-header'>Payment status</th>
-              <th className='table-header'>Fulfillment status</th>
-              <th className='table-header'>Items</th>
+              {headers?.map((header, index) => (
+                <th key={index} className={index === -1 ? 'fixed bg-white table-header' : 'table-header'}>
+                  {header.title}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {currentItems?.map((order, index) => {
-              return <OrderTableRow key={order._id} order={order} />;
-            })}
+            {currentItems?.map((item) => (
+              <CustomerTableRow key={item?._id} item={item} />
+            ))}
           </tbody>
         </table>
       </div>
@@ -79,4 +75,4 @@ const OrderTable = ({ itemsPerPage = 30, filter }) => {
   );
 };
 
-export default OrderTable;
+export default CustomerTable;
