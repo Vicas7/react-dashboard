@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import ReactPaginate from 'react-paginate';
 import ProductTableRow from './ProductTableRow';
 
-import { orderData } from '../api/orders';
-
 const ProductTable = ({ headers, filter, itemsPerPage = 30 }) => {
   const [currentItems, setCurrentItems] = useState(null);
   const [pageCount, setPageCount] = useState(0);
@@ -33,7 +31,7 @@ const ProductTable = ({ headers, filter, itemsPerPage = 30 }) => {
   }, [itemOffset, itemsPerPage, filter]);
 
   const handlePageClick = (e) => {
-    const newOffset = (e.selected * itemsPerPage) % orderData.length;
+    const newOffset = (e.selected * itemsPerPage) % currentItems.length;
     console.log(`User requested page number ${e.selected}, which is offset ${newOffset}`);
     setItemOffset(newOffset);
   };

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import productImage from '../assets/product-placeholder.jpg';
+import productImage from '../../assets/product-placeholder.jpg';
 
 const ProductTableRow = ({ item }) => {
   const [isHovered, setIsHovered] = useState(false);

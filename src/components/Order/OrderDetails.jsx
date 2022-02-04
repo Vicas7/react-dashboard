@@ -4,7 +4,7 @@ import { FaCircle, FaRegCircle } from 'react-icons/fa';
 import { HiOutlineArrowLeft } from 'react-icons/hi';
 import { Link, useParams } from 'react-router-dom';
 
-import productImage from '../assets/product-placeholder.jpg';
+import productImage from '../../assets/product-placeholder.jpg';
 
 const OrderDetails = () => {
   const [order, setOrder] = useState(null);
@@ -44,7 +44,7 @@ const OrderDetails = () => {
 
   return (
     <div className='p-6 bg-gray-50 min-h-[calc(100vh-3rem)]'>
-      <div className='mx-auto max-w-[736px]'>
+      <div className='mx-auto max-w-[850px]'>
         <div className='flex justify-between items-center'>
           <div className='flex gap-2 items-center'>
             <div className='flex items-center h-8 w-8 justify-center border text-gray-700 border-gray-400 rounded-mmd'>
@@ -85,7 +85,7 @@ const OrderDetails = () => {
         </div>
       </div>
       <div className='flex my-6 gap-4 justify-center'>
-        <div className='flex-1 max-w-[520px]'>
+        <div className='flex-1 max-w-[600px]'>
           <div className='bg-white shadow-md rounded-md mb-4'>
             <div className='p-4 border-b'>
               <h5 className='text-sm font-medium mb-4 capitalize'>{order?.fulfillmentStatus}</h5>
@@ -151,7 +151,7 @@ const OrderDetails = () => {
           </div>
         </div>
 
-        <div className='bg-white shadow-md rounded-md min-w-[200px] max-w-[220px] h-max'>
+        <div className='bg-white shadow-md rounded-md min-w-[200px] max-w-[250px] h-max'>
           <div className='p-4 border-b'>
             <h5 className='text-sm font-medium mb-4'>Customer</h5>
 

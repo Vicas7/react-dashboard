@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuill } from 'react-quilljs';
 import { FileUploader } from 'react-drag-drop-files';
 import { nanoid } from 'nanoid';
@@ -9,8 +9,8 @@ import 'quill/dist/quill.snow.css';
 import { HiOutlineArrowLeft } from 'react-icons/hi';
 import { BsTrashFill } from 'react-icons/bs';
 
-import { ProductOptions } from '.';
-import { storage } from '../config/firebase';
+import { ProductOptions } from '..';
+import { storage } from '../../config/firebase';
 
 const fileTypes = ['JPG', 'PNG', 'GIF', 'JPEG'];
 
@@ -26,7 +26,7 @@ const modules = {
   },
 };
 
-const ProductDetails = () => {
+const NewDiscount = () => {
   const [status, setStatus] = useState('draft');
   const [files, setFiles] = useState([]);
   const [title, setTitle] = useState('');
@@ -34,41 +34,10 @@ const ProductDetails = () => {
   const [comparePrice, setComparePrice] = useState('');
   const [hasOptions, setHasOptions] = useState(false);
   const [options, setOptions] = useState([{ name: '', values: [{ name: '', price: '', comparePrice: '' }] }]);
-  const [hasChanged, setHasChanged] = useState(false);
 
   const { quill, quillRef } = useQuill({ modules });
 
   const navigate = useNavigate();
-  const { productId } = useParams();
-
-  useEffect(() => {
-    setHasChanged(false);
-    const getProduct = async () => {
-      const res = await fetch(`http://localhost:5050/products/${productId}`, {
-        headers: {
-          key: 'd11805cb-8f9b-4dfa-b758-5005d9d5cb38',
-        },
-      });
-      const data = await res.json();
-      console.log(data);
-
-      setTitle(data.title);
-      quillRef.current.firstChild.innerHTML = data?.description || '';
-      setStatus(data.active ? 'active' : 'draft');
-      setFiles(data?.images || []);
-      setPrice(data.price);
-      setComparePrice(data.comparePrice);
-      setHasOptions(data.options);
-      if (data?.variants) setOptions(data.variants);
-
-      if (quill) {
-        quill.on('text-change', () => {
-          setHasChanged(true);
-        });
-      }
-    };
-    getProduct();
-  }, [productId]);
 
   const handleFilesChange = async (file) => {
     const id = nanoid();
@@ -76,7 +45,6 @@ const ProductDetails = () => {
       await storage.ref('images/' + id).put(file);
       const url = await storage.ref('images').child(id).getDownloadURL();
       setFiles((prev) => [...prev, { name: id, url }]);
-      setHasChanged(true);
     } catch (error) {
       alert(error);
     }
@@ -86,7 +54,6 @@ const ProductDetails = () => {
     try {
       await storage.ref('images/' + name).delete();
       setFiles((prev) => prev.filter((file) => file.name !== name));
-      setHasChanged(true);
     } catch (error) {
       alert(error);
     }
@@ -104,19 +71,18 @@ const ProductDetails = () => {
       variants: options[0].name != '' ? options : null,
     };
 
-    var headers = new Headers();
-    headers.append('key', 'd11805cb-8f9b-4dfa-b758-5005d9d5cb38');
-    headers.append('Content-Type', 'application/json');
-
     console.log(body);
 
-    const res = await fetch(`http://localhost:5050/products/${productId}`, {
-      method: 'PATCH',
-      headers,
+    const res = await fetch('http://localhost:5050/discounts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        key: 'd11805cb-8f9b-4dfa-b758-5005d9d5cb38',
+      },
       body: JSON.stringify(body),
     });
     const data = await res.json();
-
+    console.log(data);
     if (data.error) alert(data.error);
     else navigate('../products');
   };
@@ -127,14 +93,14 @@ const ProductDetails = () => {
         <div className='flex justify-between items-center'>
           <div className='flex gap-2 items-center'>
             <div className='flex items-center h-8 w-8 justify-center border text-gray-700 border-gray-400 rounded-mmd'>
-              <Link to={-1} className='p-2'>
+              <Link to={'/admin/products'} className='p-2'>
                 <HiOutlineArrowLeft />
               </Link>
             </div>
 
-            <h3 className='font-medium'>{title}</h3>
+            <h3 className='font-medium'>Add Discount</h3>
           </div>
-          <button className='btn-primary' onClick={saveProduct} disabled={!hasChanged}>
+          <button className='btn-primary' onClick={saveProduct}>
             Save
           </button>
         </div>
@@ -151,10 +117,7 @@ const ProductDetails = () => {
               className='block mt-1 mb-3 w-full text-xs px-2 py-[6px] rounded-mmd ring-1 ring-gray-300 placeholder-gray-500'
               placeholder='Short sleeve t-shirt'
               value={title}
-              onChange={(e) => {
-                setTitle(e.target.value);
-                setHasChanged(true);
-              }}
+              onChange={(e) => setTitle(e.target.value)}
             />
             <label htmlFor='description' className='text-xs font-light'>
               Description
@@ -169,7 +132,7 @@ const ProductDetails = () => {
                 <div key={file.name} className='h-28 w-28  border border-gray-300 rounded-md relative group'>
                   <img src={file.url} alt='product-pic' className='w-full h-full object-contain' />
                   <div className='hidden absolute top-0 bottom-0 right-0 left-0 bg-gray-600 opacity-80 rounded-md group-hover:flex justify-center items-center'>
-                    <div className='p-2 cursor-pointer' onClick={() => removeFile(file.name)}>
+                    <div className='p-2 cursor-pointer'>
                       <BsTrashFill fontSize={16} color='red' />
                     </div>
                   </div>
@@ -215,10 +178,7 @@ const ProductDetails = () => {
                     className='ml-1 block w-full py-[6px] text-xs outline-none placeholder-gray-500 text-black'
                     placeholder='0.00'
                     value={price}
-                    onChange={(e) => {
-                      setPrice(e.target.value);
-                      setHasChanged(true);
-                    }}
+                    onChange={(e) => setPrice(e.target.value)}
                   />
                 </div>
               </div>
@@ -234,23 +194,14 @@ const ProductDetails = () => {
                     className='ml-1 block w-full py-[6px] text-xs outline-none placeholder-gray-500 text-black'
                     placeholder='0.00'
                     value={comparePrice}
-                    onChange={(e) => {
-                      setComparePrice(e.target.value);
-                      setHasChanged(true);
-                    }}
+                    onChange={(e) => setComparePrice(e.target.value)}
                   />
                 </div>
               </div>
             </div>
           </div>
 
-          <ProductOptions
-            options={options}
-            setOptions={setOptions}
-            hasOptions={hasOptions}
-            setHasOptions={setHasOptions}
-            setHasChanged={setHasChanged}
-          />
+          <ProductOptions options={options} setOptions={setOptions} hasOptions={hasOptions} setHasOptions={setHasOptions} />
         </div>
 
         <div className='bg-white shadow-md rounded-md min-w-[220px] max-w-[240px] h-max'>
@@ -261,10 +212,7 @@ const ProductDetails = () => {
               name='status'
               value={status}
               className='text-xs ring-1 ring-gray-300  shadow-sm rounded-sm w-full p-1 mb-2'
-              onChange={(e) => {
-                setStatus(e.target.value);
-                setHasChanged(true);
-              }}
+              onChange={(e) => setStatus(e.target.value)}
             >
               <option value='draft'>Draft</option>
               <option value='active'>Active</option>
@@ -281,4 +229,4 @@ const ProductDetails = () => {
   );
 };
 
-export default ProductDetails;
+export default NewDiscount;
