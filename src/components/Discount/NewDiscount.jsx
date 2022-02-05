@@ -27,13 +27,15 @@ const modules = {
 };
 
 const NewDiscount = () => {
-  const [status, setStatus] = useState('draft');
   const [files, setFiles] = useState([]);
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState('');
   const [comparePrice, setComparePrice] = useState('');
   const [hasOptions, setHasOptions] = useState(false);
   const [options, setOptions] = useState([{ name: '', values: [{ name: '', price: '', comparePrice: '' }] }]);
+
+  const [status, setStatus] = useState('draft');
+  const [code, setCode] = useState('');
 
   const { quill, quillRef } = useQuill({ modules });
 
@@ -45,15 +47,6 @@ const NewDiscount = () => {
       await storage.ref('images/' + id).put(file);
       const url = await storage.ref('images').child(id).getDownloadURL();
       setFiles((prev) => [...prev, { name: id, url }]);
-    } catch (error) {
-      alert(error);
-    }
-  };
-
-  const removeFile = async (name) => {
-    try {
-      await storage.ref('images/' + name).delete();
-      setFiles((prev) => prev.filter((file) => file.name !== name));
     } catch (error) {
       alert(error);
     }
@@ -98,7 +91,7 @@ const NewDiscount = () => {
               </Link>
             </div>
 
-            <h3 className='font-medium'>Add Discount</h3>
+            <h3 className='font-medium'>Create Discount</h3>
           </div>
           <button className='btn-primary' onClick={saveProduct}>
             Save
@@ -108,16 +101,16 @@ const NewDiscount = () => {
       <div className='flex my-6 gap-4 justify-center'>
         <div className='flex-1 max-w-[500px]'>
           <div className='bg-white shadow-md rounded-md mb-4 p-4'>
-            <label htmlFor='title' className='text-xs font-light'>
-              Title
+            <label htmlFor='title' className='text-sm font-medium'>
+              Discount code
             </label>
             <input
               type='text'
               id='title'
-              className='block mt-1 mb-3 w-full text-xs px-2 py-[6px] rounded-mmd ring-1 ring-gray-300 placeholder-gray-500'
-              placeholder='Short sleeve t-shirt'
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              className='block mt-2 mb-3 w-full text-xs px-2 py-[6px] rounded-mmd ring-1 ring-gray-300 placeholder-gray-500'
+              placeholder='e.g. CHRISTMAS10'
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
             />
             <label htmlFor='description' className='text-xs font-light'>
               Description
