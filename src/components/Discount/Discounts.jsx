@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { HiSearch } from 'react-icons/hi';
 import { Link } from 'react-router-dom';
-import ProductTable from '../Product/ProductTable';
+import DiscountTable from './DiscountTable';
 
 const activeTabStyle =
   'relative cursor-pointer text-xs px-3 py-2 before:content[""] before:absolute before:bottom-0 before:left-0 before:right-0 before:h-[2px] before:rounded-t-md before:bg-green-700 hover:before:bg-gray-400';
 const notActiveTabStyle =
   'relative cursor-pointer text-xs text-gray-500 hover:text-black px-3 py-2 before:content[""] before:absolute before:bottom-0 before:left-0 before:right-0 before:h-[2px] before:rounded-t-md hover:before:bg-gray-400';
 
-const headers = [{ title: 'Title' }, { title: 'Code' }, { title: 'Type' }, { title: 'Amount' }, { title: 'Used' }];
+const headers = [{ title: 'Code' }, { title: 'Type' }, { title: 'Status' }, { title: 'Value' }];
 
 const Discounts = () => {
   const [filter, setFilter] = useState({ status: null, search: '' });
@@ -75,13 +75,13 @@ const Discounts = () => {
                 onChange={(e) => setFilter((prev) => ({ ...prev, search: e.target.value }))}
                 onFocus={() => setIsFilterFocused(true)}
                 onBlur={() => setIsFilterFocused(false)}
-                placeholder='Filter products'
+                placeholder='Filter discounts'
                 className='text-xs w-full font-normal py-[6px] placeholder-gray-500 outline-none bg-transparent'
               />
             </label>
           </div>
 
-          <ProductTable headers={headers} filter={filter} />
+          <DiscountTable headers={headers} filter={filter} />
         </div>
       </div>
     </div>

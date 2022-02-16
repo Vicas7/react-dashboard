@@ -12,7 +12,7 @@ const Header = () => {
       <div className='flex items-center'>
         <p className='text-sm '>{user?.companyName}</p>
       </div>
-      <div>
+      <div className='hidden'>
         <label className='flex gap-1 items-center pl-2 border rounded-mmd min-w-[300px] md:w-[420px] bg-gray-100'>
           <HiSearch className='text-gray-600 text-base' />
           <input

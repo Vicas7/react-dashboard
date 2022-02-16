@@ -1,70 +1,21 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuill } from 'react-quilljs';
-import { FileUploader } from 'react-drag-drop-files';
-import { nanoid } from 'nanoid';
-
-import 'quill/dist/quill.snow.css';
 
 import { HiOutlineArrowLeft } from 'react-icons/hi';
-import { BsTrashFill } from 'react-icons/bs';
-
-import { ProductOptions } from '..';
-import { storage } from '../../config/firebase';
-
-const fileTypes = ['JPG', 'PNG', 'GIF', 'JPEG'];
-
-const modules = {
-  toolbar: [
-    [{ size: ['small', false, 'large', 'huge'] }],
-    ['bold', 'italic', 'underline', 'color'],
-    [{ align: [false, 'center', 'right'] }],
-    ['link', { list: 'ordered' }, { list: 'bullet' }],
-  ],
-  clipboard: {
-    matchVisual: false,
-  },
-};
 
 const NewDiscount = () => {
-  const [files, setFiles] = useState([]);
-  const [title, setTitle] = useState('');
-  const [price, setPrice] = useState('');
-  const [comparePrice, setComparePrice] = useState('');
-  const [hasOptions, setHasOptions] = useState(false);
-  const [options, setOptions] = useState([{ name: '', values: [{ name: '', price: '', comparePrice: '' }] }]);
-
-  const [status, setStatus] = useState('draft');
+  const [status, setStatus] = useState('false');
   const [code, setCode] = useState('');
-
-  const { quill, quillRef } = useQuill({ modules });
+  const [value, setValue] = useState('');
+  const [isPercentage, setIsPercentage] = useState(true);
 
   const navigate = useNavigate();
 
-  const handleFilesChange = async (file) => {
-    const id = nanoid();
-    try {
-      await storage.ref('images/' + id).put(file);
-      const url = await storage.ref('images').child(id).getDownloadURL();
-      setFiles((prev) => [...prev, { name: id, url }]);
-    } catch (error) {
-      alert(error);
-    }
-  };
-
   const saveProduct = async () => {
-    const body = {
-      title,
-      description: quill.root.innerHTML,
-      price,
-      comparePrice,
-      images: files,
-      active: status === 'draft' ? false : true,
-      options: hasOptions,
-      variants: options[0].name != '' ? options : null,
-    };
-
-    console.log(body);
+    var headers = new Headers();
+    headers.append('key', 'd11805cb-8f9b-4dfa-b758-5005d9d5cb38');
+    headers.append('Content-Type', 'application/json');
 
     const res = await fetch('http://localhost:5050/discounts', {
       method: 'POST',
@@ -72,12 +23,16 @@ const NewDiscount = () => {
         'Content-Type': 'application/json',
         key: 'd11805cb-8f9b-4dfa-b758-5005d9d5cb38',
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify({
+        code,
+        value,
+        isPercentage,
+        active: status,
+      }),
     });
     const data = await res.json();
-    console.log(data);
     if (data.error) alert(data.error);
-    else navigate('../products');
+    else navigate('../discounts');
   };
 
   return (
@@ -86,7 +41,7 @@ const NewDiscount = () => {
         <div className='flex justify-between items-center'>
           <div className='flex gap-2 items-center'>
             <div className='flex items-center h-8 w-8 justify-center border text-gray-700 border-gray-400 rounded-mmd'>
-              <Link to={'/admin/products'} className='p-2'>
+              <Link to={-1} className='p-2'>
                 <HiOutlineArrowLeft />
               </Link>
             </div>
@@ -112,89 +67,40 @@ const NewDiscount = () => {
               value={code}
               onChange={(e) => setCode(e.target.value)}
             />
-            <label htmlFor='description' className='text-xs font-light'>
-              Description
-            </label>
-            <div ref={quillRef} className='rounded-b-mmd !border-gray-300'></div>
           </div>
 
           <div className='bg-white shadow-md rounded-md p-4 mb-4'>
-            <h5 className='text-sm font-medium mb-3'>Media</h5>
-            <div className='flex gap-2 flex-wrap '>
-              {files.map((file) => (
-                <div key={file.name} className='h-28 w-28  border border-gray-300 rounded-md relative group'>
-                  <img src={file.url} alt='product-pic' className='w-full h-full object-contain' />
-                  <div className='hidden absolute top-0 bottom-0 right-0 left-0 bg-gray-600 opacity-80 rounded-md group-hover:flex justify-center items-center'>
-                    <div className='p-2 cursor-pointer'>
-                      <BsTrashFill fontSize={16} color='red' />
-                    </div>
-                  </div>
-                </div>
-              ))}
-              <div className='w-full'>
-                <FileUploader
-                  name='file'
-                  handleChange={handleFilesChange}
-                  types={fileTypes}
-                  classes={
-                    files.length == 0
-                      ? 'flex flex-col gap-1 justify-center items-center h-20  cursor-pointer border border-dashed border-gray-300 hover:border-blue-700 hover:bg-gray-50 rounded-mmd'
-                      : 'flex flex-col gap-1 justify-center items-center w-28 h-28 cursor-pointer border border-dashed border-gray-300 hover:border-blue-700 hover:bg-gray-50 rounded-mmd'
-                  }
-                  children={
-                    files.length == 0 ? (
-                      <>
-                        <div className='text-xxs px-1 py-[1px] bg-blue-100 text-blue-700 rounded-mmd'>Add file</div>
-                        <p className='text-xxs font-light text-gray-500'>Accepts images and gifs</p>
-                      </>
-                    ) : (
-                      <div className='text-xxs px-1 py-[1px] bg-blue-100 text-blue-700 rounded-mmd'>Add file</div>
-                    )
-                  }
-                />
-              </div>
+            <h5 className='text-sm font-medium mb-3'>Type</h5>
+            <div className='flex w-full items-center mb-2'>
+              <input type='radio' name='type' id='percentage' checked={isPercentage} onClick={() => setIsPercentage(true)} />
+              <label htmlFor='percentage' className='text-xs ml-2 font-light'>
+                Percentage
+              </label>
+            </div>
+            <div className='flex w-full items-center mb-2'>
+              <input type='radio' name='type' id='fixed' checked={!isPercentage} onClick={() => setIsPercentage(false)} />
+              <label htmlFor='fixed' className='text-xs ml-2 font-light'>
+                Fixed amount
+              </label>
             </div>
           </div>
 
           <div className='bg-white shadow-md rounded-md p-4 mb-4'>
-            <h5 className='text-sm font-medium mb-3'>Pricing</h5>
-            <div className='flex gap-4'>
-              <div className='flex-1'>
-                <label htmlFor='price' className='text-xs font-light'>
-                  Price
-                </label>
-                <div className='flex items-center w-full text-xs px-2 mt-1 rounded-mmd text-gray-500 font-light ring-1 ring-gray-300 placeholder-gray-500'>
-                  $
-                  <input
-                    type='text'
-                    id='price'
-                    className='ml-1 block w-full py-[6px] text-xs outline-none placeholder-gray-500 text-black'
-                    placeholder='0.00'
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className='flex-1'>
-                <label htmlFor='price' className='text-xs font-light'>
-                  Compare at price
-                </label>
-                <div className='flex items-center w-full text-xs px-2 mt-1 rounded-mmd text-gray-500 font-light ring-1 ring-gray-300 placeholder-gray-500'>
-                  $
-                  <input
-                    type='text'
-                    id='price'
-                    className='ml-1 block w-full py-[6px] text-xs outline-none placeholder-gray-500 text-black'
-                    placeholder='0.00'
-                    value={comparePrice}
-                    onChange={(e) => setComparePrice(e.target.value)}
-                  />
-                </div>
-              </div>
+            <h5 className='text-sm font-medium mb-3'>Value</h5>
+            <div>
+              <label htmlFor='value' className='text-xs font-light'>
+                Discount value
+              </label>
+              <input
+                type='text'
+                id='value'
+                className='block mt-1 mb-3 w-32 text-xs px-2 py-[6px] rounded-mmd ring-1 ring-gray-300 placeholder-gray-500'
+                placeholder='10'
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+              />
             </div>
           </div>
-
-          <ProductOptions options={options} setOptions={setOptions} hasOptions={hasOptions} setHasOptions={setHasOptions} />
         </div>
 
         <div className='bg-white shadow-md rounded-md min-w-[220px] max-w-[240px] h-max'>
@@ -207,13 +113,13 @@ const NewDiscount = () => {
               className='text-xs ring-1 ring-gray-300  shadow-sm rounded-sm w-full p-1 mb-2'
               onChange={(e) => setStatus(e.target.value)}
             >
-              <option value='draft'>Draft</option>
-              <option value='active'>Active</option>
+              <option value='false'>Draft</option>
+              <option value='true'>Active</option>
             </select>
-            {status === 'draft' ? (
-              <p className='text-xs font-light text-gray-500 '>This product will be hidden.</p>
+            {status === 'true' ? (
+              <p className='text-xs font-light text-gray-500'>This product will be active.</p>
             ) : (
-              <p className='text-xs font-light text-gray-500'>This product will be available.</p>
+              <p className='text-xs font-light text-gray-500 '>This discount won't be active.</p>
             )}
           </div>
         </div>
